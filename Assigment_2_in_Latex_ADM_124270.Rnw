@@ -1,0 +1,241 @@
+\documentclass[13pt]{article}
+\usepackage{graphicx}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+\title{Statistical Inference\\
+Assignment 2 in Latex}
+\author{Laban Bore\\
+ADM: 124270}
+\date{24 October 2019}
+\maketitle
+
+\begin{enumerate}
+
+\item[(1.a)]In a study of a fungus which infects wheat, 250 wheat seeds are disseminated after contaminating them with the fungus. The research question is how large the
+probability $\theta$ is that an infected seed can germinate. Due to technical problems,
+the exact number of germinated seeds cannot be evaluated, but we know only
+that less than 25 seeds have germinated. Write down the likelihood function for
+$\theta$ based on the information available from the experiment.\\
+
+The solution\\
+This is a binomial distribution which is expressed as:\\
+\\
+L($\theta$) = Pr(X $\leq$ 24; $\theta$)
+
+
+\begin{figure}
+  \includegraphics[width=15cm,scale=0.5]{E:/Msc Study/Statistical Inferences/Assignments_2/images/question_1a_b.jpeg}
+  \caption{question 1a and b.}
+\end{figure}
+
+
+\begin{figure}
+  \includegraphics[width=15cm,scale=0.5]{E:/Msc Study/Statistical Inferences/Assignments_2/images/question_1c.jpeg}
+  \caption{question 1c.}
+\end{figure}
+\clearpage
+
+d) Using R, produce a plot of the likelihood functions:
+i. L($\theta$) in 1a)\\
+<<>>=
+#The R code
+## likelihood function in partially observed
+## binomial experiment:
+likelihood1 <- function(theta, n, x)
+  # number in interval [0, x] was observed
+  # n is the sample size
+{
+  pbinom(x, size = n, p = theta)
+}
+theta <- seq(from = 0, to = 0.2, length = 1000) # range for theta
+plot(
+  theta,
+  likelihood1(theta, n = 250, x = 24),
+  type = "l",
+  xlab = expression(theta),
+  ylab = expression(L(theta)),
+  main = "Question 1 (a)"
+)
+
+
+@
+
+
+\begin{figure}
+  \includegraphics[width=15cm,scale=0.5]{E:/Msc Study/Statistical Inferences/Assignments_2/images/Rplot_1a.jpeg}
+  \caption{Plot 1a. i. L($\theta$) in 1a)}
+\end{figure}
+\clearpage
+
+ii. L($\theta$) in 1b) if the observed sample is x = (1.5, 0.25, 3.75, 3.0, 2.5)
+
+
+<<>>=
+## likelihood for mean of normal distribution if only the
+## maximum is known from the sample
+likelihood2 <- function(theta, n, y)
+{
+  n * pnorm(y - theta) ^ (n - 1) * dnorm(y - theta)
+}
+x <- c(1.5, 0.25, 3.75, 3.0, 2.5)
+theta <- seq(-1, 6, length = 1000)
+plot(
+  theta,
+  likelihood2(theta, y = max(x), n = length(x)),
+  type = "l",
+  xlab = expression(theta),
+  ylab = expression(L(theta)),
+  main = "Question 1 (b)"
+)
+@
+
+\clearpage
+\begin{figure}
+  \includegraphics[width=15cm,scale=0.5]{E:/Msc Study/Statistical Inferences/Assignments_2/images/Rplot_1b.jpeg}
+  \caption{Plot 1b. ii. L($\theta$) in 1b)}
+\end{figure}
+
+
+iii.L($\theta$) in 1c) if the observed sample is x = (0, 5, 9)
+<<>>=
+## likelihood for location parameter of Cauchy in
+## random sample
+likelihood3 <- function(theta, x)
+  #x observed data vector
+  {
+  1 / pi ^ 3 / prod((1 + (x - theta) ^ 2))
+  }
+  
+  likelihood3vec <- Vectorize(likelihood3,
+  vectorize.args = "theta")
+  x <- c(0, 5, 9)
+  theta <- seq(from = -5, to = 15,
+  length = 1000)
+  plot(
+  theta,
+  likelihood3vec(theta, x = x),
+  type = "l",
+  xlab = expression(theta),
+  ylab = expression(L(theta)),
+  main = "Question 1 (c)"
+  )
+@
+
+\clearpage
+\begin{figure}
+  \includegraphics[width=15cm,scale=0.5]{E:/Msc Study/Statistical Inferences/Assignments_2/images/Rplot_1c.jpeg}
+  \caption{Plot 1c. iii. L($\theta$) in 1c)}
+\end{figure}
+
+ 2 a) Consider the observation X0 = x0 as fixed. Show that the log-likelihood kernel
+
+\begin{figure}
+  \includegraphics[width=15cm,scale=0.5]{E:/Msc Study/Statistical Inferences/Assignments_2/images/question_2ab.jpeg}
+  \caption{question 2a and b.}
+\end{figure}
+\clearpage
+
+\begin{figure}
+  \includegraphics[width=15cm,scale=0.5]{E:/Msc Study/Statistical Inferences/Assignments_2/images/question_2b.jpeg}
+  \caption{cont'question 2b.}
+\end{figure}
+\clearpage
+
+2.c Create a plot of ln($\alpha$) and compute ($\hat{\alpha}_{mle}$) for the following sample:
+
+<<>>=
+  #(x0,...,x6) = (???0.560,???0.510,1.304,0.722,0.490,1.960,1.441)
+  ## implement log-likelihood kernel
+  loglik <- function(alpha, x)
+  # observed data vector
+  # alpha parameter for first-order term
+  {
+  i <- 2:length(x)
+  - 1 / 2 * sum((x[i] - alpha * x[i - 1]) ^ 2)
+  }
+  ##  plot for the given data
+  x <- c(-0.560, -0.510, 1.304, 0.722, 0.490, 1.960, 1.441)
+  alpha <- seq(-1, 2, length = 100)
+  plot(
+  x = alpha,
+  y = sapply(alpha, function(alpha)
+  loglik(alpha, x)),
+  type = "l",
+  xlab = expression(alpha),
+  ylab = expression(l(alpha)),
+    main = "2.c Create a plot of ln(alpha)"
+  )
+  ## then calculate the MLE and plot it
+  i <- seq(along = x)[-1] # indexing the vector is necessary here
+  alphaMl <- sum(x[i] * x[i - 1]) / sum(x[i - 1] ^ 2)
+  alphaMl
+  
+  abline(v = alphaMl, lty = 2)
+@
+
+\clearpage 
+\begin{figure}
+  \includegraphics[width=15cm,scale=0.5]{E:/Msc Study/Statistical Inferences/Assignments_2/images/Rplot_2c.jpeg}
+  \caption{plot of ln($\alpha$) in 2c)}
+\end{figure}
+ $\hat{\alpha}_{mle}$ = 0.6835131
+
+\clearpage
+
+5. A sample of 197 animals has been analysed regarding a specific phenotype. The
+number of animals with phenotypes AB, Ab, aB and ab, respectively, turned out
+to be
+  x = (x1,x2,x3,x4) = (125,18,20,34)
+
+Solution to question 5a and 5b
+\begin{figure}
+  \includegraphics[width=15cm,scale=0.5]{E:/Msc Study/Statistical Inferences/Assignments_2/images/question_5ab.jpeg}
+  \caption{question 5a and 5b)}
+\end{figure}
+\clearpage
+
+Question 5c
+\begin{figure}
+  \includegraphics[width=15cm,scale=0.5]{E:/Msc Study/Statistical Inferences/Assignments_2/images/question_5c.jpeg}
+  \caption{question 5c)}
+\end{figure}
+\clearpage
+
+<<>>=
+#Solution to the quadratic equation in question 5c
+
+  mle.phi <- function(x)
+  {
+  m <- c(x[1], x[2] + x[3], x[4])
+  a <- -sum(m)
+  b <- m[1] - 2 * m[2] - m[3]
+  c <- 2 * m[3]
+  phis <- (-b + c(-1, +1) * sqrt(b ^ 2 - 4 * a * c)) / (2 * a)
+  correct.range <- (phis > 0) & (phis < 1)
+  return(phis[correct.range])
+  }
+  x <- c(125, 18, 20, 34)
+  phiHat <- mle.phi(x)
+  phiHat
+@
+
+ $\hat{\phi}_{mle}$ = 0.6268215
+\clearpage
+
+5.d) What is the MLE of $\theta$ = $\sqrt\phi$?
+
+    ${\theta}_{mle}$ = $\hat{\sqrt\phi}_{mle}$
+<<>>=
+#What is the MLE of $\theta$ = $\sqrt\phi$?
+#${\theta}_{mle}$ = $\hat{\sqrt\phi}_{mle}$
+(thetaHat <- sqrt(phiHat))
+    
+@
+
+ ${\theta}_{mle}$ = 0.7917206
+\clearpage
+End of the assignment 2
+
+  \end{enumerate}
+\end{document}

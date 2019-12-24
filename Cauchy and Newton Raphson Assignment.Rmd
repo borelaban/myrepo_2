@@ -1,0 +1,76 @@
+---
+title: "R Cauchy Assignment"
+author: "Laban Bore"
+date: "October 8, 2019"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include = TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(12345)
+```
+
+## Generate Random Variable from Cauchy distribution of size 1000
+Let y be a random sample of size 1000
+#The code for cauchy random numbers will be 
+
+
+# Questions:
+1. Write code for score function
+2. Write code for information
+3. Write code using Newton Raphson 
+
+```{r mle }
+#1. Code for score funtion
+mlecauchy = function(y, toler = .001) {
+  #y is a random generated vector here
+  startvalue = median(y)
+  #n = length(y);
+  thetahatcurr = startvalue
+  
+  
+  # Compute first deriviative of log likelihood
+  #
+  firstderivll = 2 * sum((y - thetahatcurr) / (1 + (y - thetahatcurr) ^ 2))
+  
+  # Continue Newton’s method until the first derivative
+  # of the likelihood is within toler of 0.001
+  
+  while (abs(firstderivll) > toler)
+  {
+    # Compute second derivative of log likelihood
+    secondderivll = 2 * sum(((y - thetahatcurr) ^ 2 - 1) / (1 + (y - thetahatcurr) ^
+                                                              2) ^ 2)
+    
+    
+    # Newton’s method update of estimate of theta
+    
+    thetahatnew = thetahatcurr - firstderivll / secondderivll
+    
+    thetahatcurr = thetahatnew
+    
+    
+    # Compute first derivative of log likelihood
+    
+    firstderivll = 2 * sum((y - thetahatcurr) / (1 + (y - thetahatcurr) ^
+                                                   2))
+  }
+  list(thetahat = thetahatcurr)
+  
+  
+}
+
+y <- rcauchy(1000)
+
+
+ (mlecauchy(y, 0.000000001))
+
+
+
+```
+
+
+
